@@ -36,3 +36,42 @@
     transform: rotate(360deg);
   }
 }
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.form-section {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.list-section {
+  flex: 1;
+  margin-left: 20px;
+  overflow-x: auto; /* Add horizontal scrolling if needed */
+}
+
+textarea {
+  width: 100%;
+}
+
+button {
+  margin-top: 10px;
+}
+
+.clear-button {
+  margin-top: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  background-color: darkred;
+}

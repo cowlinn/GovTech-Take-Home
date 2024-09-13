@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 from app.models import Team
 from typing import List
+from bson import ObjectId
 
 router = APIRouter()
 
@@ -36,3 +37,26 @@ async def get_teams():
     for team in teams:
         team["_id"] = str(team["_id"])
     return teams
+
+
+@router.put("/teams/{team_id}")
+async def update_team(team_id: str, team: Team):
+    try:
+        result = team_collection.update_one(
+            {"_id": ObjectId(team_id)},
+            {"$set": team.dict(by_alias=True)}
+        )
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Team not found or no changes made")
+        return {"message": "Team updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/teams/")
+async def delete_all_teams():
+    try:
+        team_collection.delete_many({})  # Delete all documents in the collection
+        return {"message": "All teams have been cleared."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
