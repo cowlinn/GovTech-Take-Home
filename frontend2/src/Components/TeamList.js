@@ -53,8 +53,8 @@ const TeamList = () => {
         <thead>
           <tr>
             <th>Team Name</th>
-            <th>Registration Date</th>
-            <th>Group Number</th>
+            <th>Reg-Date</th>
+            <th>Group</th>
             <th>Edit</th>
           </tr>
         </thead>

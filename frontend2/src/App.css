@@ -39,39 +39,23 @@
 
 .container {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
 }
 
 .form-section {
-  flex: 1;
-  margin-right: 20px;
+  margin-bottom: 20px;
 }
 
 .list-section {
-  flex: 1;
-  margin-left: 20px;
-  overflow-x: auto; /* Add horizontal scrolling if needed */
+  text-align: center;
 }
 
-textarea {
-  width: 100%;
+.clear-button, .navigate-button {
+  margin: 10px; /* Adds spacing between the buttons */
 }
 
-button {
-  margin-top: 10px;
-}
-
-.clear-button {
-  margin-top: 10px;
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.clear-button:hover {
-  background-color: darkred;
+.team-list {
+  margin-bottom: 20px; /* Adds vertical space between TeamList and buttons */
 }
