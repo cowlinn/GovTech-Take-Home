@@ -59,3 +59,42 @@
 .team-list {
   margin-bottom: 20px; /* Adds vertical space between TeamList and buttons */
 }
+
+
+/* Styling for the table container */
+.table-container {
+  margin: 20px auto;
+  padding: 10px;
+  max-width: 1000px;
+}
+
+/* Basic table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+/* Table headers and cells */
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center; /* Center align text */
+}
+
+/* Table headers styling */
+th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+/* Alternate row background color */
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Spacing around the table */
+.table-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
