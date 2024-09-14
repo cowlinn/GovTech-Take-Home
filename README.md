@@ -25,9 +25,13 @@
         - No login credentials
     
 ### Assumptions
-- Edit 
+- For both text inputs, the input sizes are exactly 12 teams, 30 round robin matches. You can enter anything more or less
 
-- 
+- There must be exactly 6 teams from each group. 
+
+- Once you "lock in" the names, groups and registration dates of teams, you cannot edit teams any more, else the match results may not make sense. 
+
+- In the match results, you can only edit the goals scored. You cannot edit teams since the round robin format dictates exactly 1 match against every other team in the group 
 
 ### (A lot of) Potential improvements
 
@@ -39,20 +43,27 @@
 - Read/Write access limitations and admin access for mongo server 
 
 
-#### Design 
+#### Core business logic Design 
 - Could have used a lot more OOP. Didn't really have time to plan a proper schema
 
+
+#### DB choice
 - Was going to go with SQLite for an embedded database (basically act as a glorified cache), but there doesn't seem to be many `JOIN` functions required. As a simple record store Mongo works
 
 #### Hosting 
-- I was going to use Render to serve backend API, vercel frontend and some free mongo AWS service. Done it before but ran out of time 
-
-- Managed to get vercel to work but the API 
+- If given more time, I would use Render to serve backend API, vercel for frontend and some free mongo AWS wrapper. 
 
 
 #### Input sanitization 
 
-#### Look and feeeeeel
+
+#### State management 
+
+
+#### Caching
+
+
+#### Look and feel
 - Given more time, I don't think the input should be text. I would have had drop-downs / other better styling 
 
 - Would've used CSS libraries like Tailwind 

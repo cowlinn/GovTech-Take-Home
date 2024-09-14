@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Adjust the path if necessary
 import '../App.css';
+import TeamInfo from '../Components/TeamInfo';
 
 function EnterTournament() {
   const [matchResults, setMatchResults] = useState('');
   const [rankedTeams, setRankedTeams] = useState([]);
   const [matches, setMatches] = useState([]); // State to store matches
   const [editMode, setEditMode] = useState(localStorage.getItem('editResults') === 'true');
+ 
 
   useEffect(() => {
     // Fetch ranked teams when the component mounts
@@ -91,12 +93,14 @@ function EnterTournament() {
       console.error('Failed to clear matches', error.status, error.response.data);
     }
   };
+  
 
-  return (
+   return (
     <div>
       <h1>Match Results</h1>
       {editMode ? (
         <>
+          {/* Match editing table */}
           <table>
             <thead>
               <tr>
@@ -168,6 +172,8 @@ function EnterTournament() {
           ))}
         </tbody>
       </table>
+
+      <TeamInfo />
     </div>
   );
 }

@@ -7,6 +7,7 @@ from typing import Dict, List
 from bson import ObjectId
 
 from app.Util.score_helper import add_score, undo_score
+from app.Util.sort_teams import rank_teams
 
 router = APIRouter()
 
@@ -30,6 +31,22 @@ async def check_db_health():
         return {"status": "Database connection is healthy"}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Database connection failed")
+
+
+@router.get("/findTeam/{team_name}")
+async def find_team(team_name:str):
+    try:
+        curr_team = team_collection.find_one(
+            {"name" : team_name}
+        )
+        if not curr_team:
+            raise HTTPException(status_code=404, detail=f"{team_name} not found")
+        
+        curr_team["_id"] = str(curr_team["_id"])
+        return curr_team
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/teams/")
 async def add_teams(teams: List[Team]):
@@ -58,7 +75,7 @@ async def get_matches():
 
 @router.get("/teams/ranked")
 async def get_ranked_teams():
-    items = rank_teams()
+    items = rank_teams(team_collection=team_collection)
     for item in items:
         item["_id"] = str(item["_id"])
 
@@ -71,8 +88,7 @@ async def update_team(team_id: str, team: Team):
         name_clash = team_collection.find_one(
             {"name" : team.name}
         )
-        if name_clash and not str(name_clash["_id"]) == team_id:
-            print("why is this here")
+        if name_clash and str(name_clash["_id"]) != team_id:
             raise HTTPException(status_code=422, detail=f"{team}: team name already exists!")
         result = team_collection.update_one(
             {"_id": ObjectId(team_id)},
@@ -109,7 +125,7 @@ async def delete_all_matches():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/matches/update", response_model=List[Team])
+@router.post("/matches/update/", response_model=List[Team])
 async def record_matches_update(results: List[MatchResult]):
      """
      Quite a hackish solution, just delete all previous matches and add the current ones back
@@ -118,7 +134,7 @@ async def record_matches_update(results: List[MatchResult]):
      for result in results:
             add_score(result=result, team_collection=team_collection, match_collection=match_collection)
 
-     return rank_teams()
+     return rank_teams(team_collection=team_collection)
 
 ## I really dislike this implementation. Class behavior should be abstracted in the Team class.
 ## In any case, this is a potential improvement
@@ -161,50 +177,13 @@ async def record_matches(results: List[MatchResult]):
         for result in results:
             add_score(result=result, team_collection=team_collection, match_collection=match_collection)
 
-        return rank_teams()
+        return rank_teams(team_collection=team_collection)
     
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-
-
-def rank_teams() -> List[Team]:
-    # Retrieve all teams from MongoDB
-    teams = list(team_collection.find())
-    
-    grouped_teams = {}
-    for team in teams:
-        group_number = team['groupNumber']
-        if group_number not in grouped_teams:
-            grouped_teams[group_number] = []
-        grouped_teams[group_number].append(team)
-    
-    # Sort by criteria 
-    def sort_teams(teams_list):
-        return sorted(
-            teams_list,
-            key=lambda t: (
-                t['points'],  # Highest total match points
-                t['goals_scored'],  # Highest total goals scored
-                t['alternate_points'],  # Highest alternate match points
-                t['registrationDate']  # Earliest registration date
-            ),
-            reverse=True
-        )
-    # Rank teams within each group
-    ranked_teams = []
-    for group_number, teams_list in grouped_teams.items():
-        #print(len(teams_list))
-        sorted_teams = sort_teams(teams_list)
-        top_teams = sorted_teams[:4]  # Select top 4 teams
-        #print(len(top_teams))
-        ranked_teams.extend(top_teams)
-    
-    #print(len(ranked_teams))
-    return ranked_teams
-
 
 
 
