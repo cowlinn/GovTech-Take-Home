@@ -5,7 +5,7 @@ from app.models import Team, MatchResult, ResponseMessage
 from typing import Dict, List
 from bson import ObjectId
 
-from app.Util.score_helper import add_score
+from app.Util.score_helper import add_score, undo_score
 
 router = APIRouter()
 
@@ -47,7 +47,7 @@ async def get_teams():
     
     return teams
 
-@router.get("/matches")
+@router.get("/matches/")
 async def get_matches():
     matches = list(match_collection.find())
     for m in matches:
@@ -86,8 +86,30 @@ async def delete_all_teams():
         raise HTTPException(status_code=500, detail=str(e))
     
 
+@router.delete("/matches/")
+async def delete_all_matches():
+    try:
+        matches = list(match_collection.find())
+        for match in matches:
+            #print(match)
+            undo_score(result=match, team_collection=team_collection, match_collection=match_collection)
+        #team_collection.delete_many({})  # Delete all documents in the collection
+        match_collection.delete_many({})
+        return {"message": "All matches have been cleared."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-## Match related routes, maybe add in another router?
+
+@router.post("/matches/update", response_model=List[Team])
+async def record_matches_update(results: List[MatchResult]):
+     """
+     Quite a hackish solution, just delete all previous matches and add the current ones back
+     """
+     await delete_all_matches()
+     for result in results:
+            add_score(result=result, team_collection=team_collection, match_collection=match_collection)
+
+     return rank_teams()
 
 ## I really dislike this implementation. Class behavior should be abstracted in the Team class.
 ## In any case, this is a potential improvement
