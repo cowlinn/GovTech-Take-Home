@@ -39,7 +39,7 @@ const TeamList = () => {
 
   const handleSave = async (team) => {
     try {
-      await api.put(`/teams/${team._id}`, team); // Assuming your backend has an update endpoint
+      await api.put(`/teams/${team._id}`, team);
       setEditMode((prev) => ({ ...prev, [team._id]: false }));
     } catch (error) {
       console.error('Failed to update team', error);
@@ -75,7 +75,7 @@ const TeamList = () => {
               <td>
                 {editMode[team._id] ? (
                   <input
-                    type="text"
+                    type="string"
                     value={team.registrationDate}
                     onChange={(e) =>
                       handleFieldChange(team._id, 'registrationDate', e.target.value)
@@ -86,17 +86,7 @@ const TeamList = () => {
                 )}
               </td>
               <td>
-                {editMode[team._id] ? (
-                  <input
-                    type="number"
-                    value={team.groupNumber}
-                    onChange={(e) =>
-                      handleFieldChange(team._id, 'groupNumber', e.target.value)
-                    }
-                  />
-                ) : (
-                  team.groupNumber
-                )}
+                {team.groupNumber}
               </td>
               <td>
                 {editMode[team._id] ? (

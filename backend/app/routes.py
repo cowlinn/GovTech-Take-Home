@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from fastapi import APIRouter, HTTPException
 from pymongo import MongoClient
 from app.models import Team, MatchResult, ResponseMessage
@@ -12,8 +13,9 @@ router = APIRouter()
 
 EXPECTED_MATCHES_TOTAL = 30
 
-#client = MongoClient('mongodb://db:27017/') -> prod URL 
-client = MongoClient('mongodb://localhost:27017/')
+
+mongo_connection = os.getenv("MONGO_CONNECTION_STRING", default='mongodb://localhost:27017/')
+client = MongoClient(mongo_connection)
 
 
 db = client["team_database"]
@@ -65,12 +67,19 @@ async def get_ranked_teams():
 @router.put("/teams/{team_id}")
 async def update_team(team_id: str, team: Team):
     try:
+        
+        name_clash = team_collection.find_one(
+            {"name" : team.name}
+        )
+        if name_clash and not str(name_clash["_id"]) == team_id:
+            print("why is this here")
+            raise HTTPException(status_code=422, detail=f"{team}: team name already exists!")
         result = team_collection.update_one(
             {"_id": ObjectId(team_id)},
             {"$set": team.dict(by_alias=True)}
         )
-        if result.modified_count == 0:
-            raise HTTPException(status_code=404, detail="Team not found or no changes made")
+        # if result.modified_count == 0:
+        #     raise HTTPException(status_code=404, detail="Team not found or no changes made")
         return {"message": "Team updated successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

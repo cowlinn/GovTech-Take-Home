@@ -15,6 +15,8 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    environment:
+      - MONGO_CONNECTION_STRING="mongodb://db:27017/"
     networks:
       - app-network
 

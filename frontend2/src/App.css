@@ -52,8 +52,8 @@
   text-align: center;
 }
 
-.clear-button, .navigate-button {
-  margin: 10px; /* Adds spacing between the buttons */
+.clear-button, .navigate-button, .clear-all-button {
+  margin: 15px; /* Adds spacing between the buttons */
 }
 
 .team-list {

@@ -65,13 +65,30 @@ function EnterTournament() {
   const handleSaveMatches = async () => {
     try {
       // Send the updated matches to the backend
-      console.log(matches);
       const rank = await api.post('/matches/update/', matches);
       const rank_response = rank.data;
       setRankedTeams(rank_response);
       console.log('Matches saved successfully');
     } catch (error) {
       console.error('Failed to save matches', error.status, error.response.data);
+    }
+  };
+
+  const handleClearAllMatches = async () => {
+    try {
+      // Call backend to delete all matches
+      await api.delete('/matches/');
+      
+      // Clear matches in the frontend
+      setMatches([]);
+      
+      // Remove edit mode and the localStorage flag
+      setEditMode(false);
+      localStorage.removeItem('editResults');
+
+      console.log('All matches cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear matches', error.status, error.response.data);
     }
   };
 
@@ -83,10 +100,10 @@ function EnterTournament() {
           <table>
             <thead>
               <tr>
-                <th>Team A</th>
-                <th>Team B</th>
-                <th>Team A Goals</th>
-                <th>Team B Goals</th>
+                <th>Home</th>
+                <th>Away</th>
+                <th>Home Goals</th>
+                <th>Away Goals</th>
               </tr>
             </thead>
             <tbody>
@@ -113,6 +130,7 @@ function EnterTournament() {
             </tbody>
           </table>
           <button onClick={handleSaveMatches}>Save Edited Matches</button>
+          <button onClick={handleClearAllMatches} className="clear-all-button"> Clear all matches </button>
         </>
       ) : (
         <>
