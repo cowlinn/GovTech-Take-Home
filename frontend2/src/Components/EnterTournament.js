@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Adjust the path if necessary
 import '../App.css';
 import TeamInfo from '../Components/TeamInfo';
+import EXPECTED_MATCHES_TOTAL from '../Utilities/Constants';
 
 function EnterTournament() {
   const [matchResults, setMatchResults] = useState('');
@@ -43,6 +44,10 @@ function EnterTournament() {
       return { teamA, teamB, teamAGoals: parseInt(teamAGoals, 10), teamBGoals: parseInt(teamBGoals, 10) };
     });
 
+    if (lines.length !== EXPECTED_MATCHES_TOTAL) {
+      setMessage('Error: Please enter exactly 30 matches.');
+      return;
+    }
     try {
       // Submit match results to backend
       const response = await api.post('/matches', results); 

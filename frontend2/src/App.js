@@ -4,6 +4,7 @@ import api from './services/api';
 import TeamList from './Components/TeamList';
 import './App.css'; // Ensure the path is correct
 import EnterTournament from './Components/EnterTournament';
+import {EXPECTED_TEAM_NUMBER, NUMBER_OF_FIELDS} from './Utilities/Constants';
 
 function App() {
   const [teamData, setTeamData] = useState('');
@@ -13,8 +14,14 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
+  
     const savedState = localStorage.getItem('isSubmitted');
     const navigationState = localStorage.getItem('hasNavigated');
+
+    if (!savedState && !navigationState) { //user has cleared cache, probably need to clear everything
+      localStorage.removeItem('editResults');
+      handleClearAll(); 
+    };
 
     if (savedState === 'true') {
       setIsSubmitted(true);
@@ -29,7 +36,7 @@ function App() {
     const lines = teamData.split('\n').filter(line => line.trim() !== "");
     const teams = lines.map(line => {
       const parts = line.trim().split(/\s+/);
-      if (parts.length === 3) {
+      if (parts.length === NUMBER_OF_FIELDS) {
         const [name, registrationDate, groupNumber] = parts;
         return { name, registrationDate, groupNumber: parseInt(groupNumber, 10) };
       } else {
@@ -38,7 +45,7 @@ function App() {
       }
     }).filter(team => team !== null);
 
-    if (teams.length !== 12) {
+    if (teams.length !== EXPECTED_TEAM_NUMBER) {
       setMessage('Error: Please enter exactly 12 teams.');
       return;
     }

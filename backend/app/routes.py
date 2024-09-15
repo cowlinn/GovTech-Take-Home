@@ -20,8 +20,8 @@ client = MongoClient(mongo_connection)
 
 
 db = client["team_database"]
-team_collection = db["teams"]
-match_collection = db["matches"] #Full of Match Result
+team_collection = db["teams"] #Team results
+match_collection = db["matches"] #Match Results
 
 @router.get("/health/db")
 async def check_db_health():
@@ -94,8 +94,7 @@ async def update_team(team_id: str, team: Team):
             {"_id": ObjectId(team_id)},
             {"$set": team.dict(by_alias=True)}
         )
-        # if result.modified_count == 0:
-        #     raise HTTPException(status_code=404, detail="Team not found or no changes made")
+      
         return {"message": "Team updated successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -128,7 +127,7 @@ async def delete_all_matches():
 @router.post("/matches/update/", response_model=List[Team])
 async def record_matches_update(results: List[MatchResult]):
      """
-     Quite a hackish solution, just delete all previous matches and add the current ones back
+     Add all new records into the table
      """
      await delete_all_matches()
      for result in results:
