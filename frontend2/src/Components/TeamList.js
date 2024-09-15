@@ -4,6 +4,7 @@ import api from '../services/api'; // Assuming you have axios or some HTTP servi
 const TeamList = () => {
   const [teams, setTeams] = useState([]);
   const [editMode, setEditMode] = useState({}); // Tracks which rows are in edit mode
+  const [editMessage, setEditMessage] = useState('');
 
   useEffect(() => {
     fetchTeams();
@@ -41,8 +42,9 @@ const TeamList = () => {
     try {
       await api.put(`/teams/${team._id}`, team);
       setEditMode((prev) => ({ ...prev, [team._id]: false }));
+      setEditMessage("Successful change");
     } catch (error) {
-      console.error('Failed to update team', error);
+      setEditMessage('Team already exists');
     }
   };
 
@@ -98,6 +100,7 @@ const TeamList = () => {
             </tr>
           ))}
         </tbody>
+        {editMessage && <p style={{ color: 'red' }}>{editMessage}</p>}
       </table>
     </div>
   );

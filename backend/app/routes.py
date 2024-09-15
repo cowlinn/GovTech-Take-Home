@@ -50,7 +50,24 @@ async def find_team(team_name:str):
     
 @router.post("/teams/")
 async def add_teams(teams: List[Team]):
-    #print(teams)
+    groups = dict()
+    names = set()
+    for team in teams:
+        if team.name in names:
+            raise HTTPException(status_code=500, detail="repeated team name")
+        if team.group_number not in groups:
+            groups[team.group_number] = []
+        groups[team.group_number].append(team.name)
+    
+    group_count = 0
+    for group in groups:
+        group_count += 1
+        if len(groups[group]) != 6:
+            raise HTTPException(status_code=500, detail="invalid group size")
+    
+    if group_count != 2:
+        raise HTTPException(status_code=500, detail="invalid number of groups")
+
     try:
         team_collection.insert_many([team.dict(by_alias=True) for team in teams])
         return {"message": "Teams added successfully"}

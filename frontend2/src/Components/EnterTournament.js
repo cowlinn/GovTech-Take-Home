@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api'; // Adjust the path if necessary
 import '../App.css';
 import TeamInfo from '../Components/TeamInfo';
-import EXPECTED_MATCHES_TOTAL from '../Utilities/Constants';
+import Constants from '../Utilities/Constants';
+const {EXPECTED_MATCHES_TOTAL} = Constants
 
 function EnterTournament() {
   const [matchResults, setMatchResults] = useState('');
   const [rankedTeams, setRankedTeams] = useState([]);
   const [matches, setMatches] = useState([]); // State to store matches
   const [editMode, setEditMode] = useState(localStorage.getItem('editResults') === 'true');
+  const [editMessage, setEditMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState('');
  
 
   useEffect(() => {
@@ -16,7 +19,7 @@ function EnterTournament() {
     const fetchTeamRanks = async () => {
       const response = await api.get('/teams/ranked'); 
       const curr_ranked = response.data;
-      console.log(curr_ranked);
+      //console.log(curr_ranked);
       setRankedTeams(curr_ranked);
     };
     fetchTeamRanks();
@@ -39,26 +42,60 @@ function EnterTournament() {
 
   const handleSubmitResults = async () => {
     const lines = matchResults.split('\n').filter(line => line.trim() !== '');
-    const results = lines.map(line => {
-      const [teamA, teamB, teamAGoals, teamBGoals] = line.trim().split(/\s+/);
-      return { teamA, teamB, teamAGoals: parseInt(teamAGoals, 10), teamBGoals: parseInt(teamBGoals, 10) };
-    });
+    let valid_lines = true;
+    let error_line = "";
+    let error_message = "";
+    const results = [];
+  
+    for (const line of lines) {
+      try {
+        const [teamA, teamB, teamAGoals, teamBGoals] = line.trim().split(/\s+/);
+        
+        // Check each individual match format 
+        if (!teamA || !teamB || isNaN(teamAGoals) || isNaN(teamBGoals)) {
+          throw new Error('Invalid input format');
+        }
+        results.push({ 
+          teamA, 
+          teamB, 
+          teamAGoals: parseInt(teamAGoals, 10), 
+          teamBGoals: parseInt(teamBGoals, 10) 
+        });
 
-    if (lines.length !== EXPECTED_MATCHES_TOTAL) {
-      setMessage('Error: Please enter exactly 30 matches.');
+        if (teamAGoals <0 || teamBGoals < 0) {
+          throw new Error('No negative goals');
+        }
+      } catch (error) {
+        error_message = error;
+        valid_lines = false;
+        error_line = line.toString();
+        break;  
+      }
+    }
+  
+    // If there was invalid input, display an error message and stop processing
+    if (!valid_lines) {
+      setInputMessage(`Invalid input format for line: ${error_line}. ${error_message}`);
       return;
     }
+  
+    // Check if the number of matches is exactly what is expected
+    if (lines.length !== EXPECTED_MATCHES_TOTAL) {
+      setInputMessage(`Error: Please enter exactly ${EXPECTED_MATCHES_TOTAL} matches.`);
+      return;
+    }
+  
     try {
       // Submit match results to backend
       const response = await api.post('/matches', results); 
       const ranked = response.data;
       setRankedTeams(ranked);
-
+  
       // Store the flag in localStorage and switch to edit mode
       localStorage.setItem('editResults', 'true');
       setEditMode(true);
     } catch (error) {
-      console.error('Failed to submit match results', error.status, error.response.data);
+      setInputMessage(`Failed to submit match results. One or more teams do not exist`);
     }
   };
 
@@ -75,9 +112,9 @@ function EnterTournament() {
       const rank = await api.post('/matches/update/', matches);
       const rank_response = rank.data;
       setRankedTeams(rank_response);
-      console.log('Matches saved successfully');
+      setEditMessage('Matches saved successfully');
     } catch (error) {
-      console.error('Failed to save matches', error.status, error.response.data);
+      setEditMessage(`Failed to save matches,${error.response.data}`);
     }
   };
 
@@ -93,9 +130,9 @@ function EnterTournament() {
       setEditMode(false);
       localStorage.removeItem('editResults');
 
-      console.log('All matches cleared successfully');
+      setInputMessage('All matches cleared successfully');
     } catch (error) {
-      console.error('Failed to clear matches', error.status, error.response.data);
+      setInputMessage(`Failed to clear matches : ${error.response.data}`);
     }
   };
   
@@ -140,6 +177,7 @@ function EnterTournament() {
           </table>
           <button onClick={handleSaveMatches}>Save Edited Matches</button>
           <button onClick={handleClearAllMatches} className="clear-all-button"> Clear all matches </button>
+          {editMessage && <p>{editMessage}</p>}
         </>
       ) : (
         <>
@@ -151,6 +189,7 @@ function EnterTournament() {
           />
           <br />
           <button onClick={handleSubmitResults}>Submit Results</button>
+          {inputMessage && <p>{inputMessage}</p>}
         </>
       )}
 

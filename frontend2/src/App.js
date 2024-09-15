@@ -4,7 +4,8 @@ import api from './services/api';
 import TeamList from './Components/TeamList';
 import './App.css'; // Ensure the path is correct
 import EnterTournament from './Components/EnterTournament';
-import {EXPECTED_TEAM_NUMBER, NUMBER_OF_FIELDS} from './Utilities/Constants';
+import Constants from './Utilities/Constants';
+const { EXPECTED_TEAM_NUMBER, NUMBER_OF_FIELDS } = Constants;
 
 function App() {
   const [teamData, setTeamData] = useState('');
@@ -20,7 +21,12 @@ function App() {
 
     if (!savedState && !navigationState) { //user has cleared cache, probably need to clear everything
       localStorage.removeItem('editResults');
-      handleClearAll(); 
+      api.delete('/teams/');
+      setMessage('Enter your teams');
+      setIsSubmitted(false);
+      localStorage.removeItem('isSubmitted');
+      localStorage.removeItem('hasNavigated'); // Reset navigation state
+      setHasNavigated(false);
     };
 
     if (savedState === 'true') {
@@ -34,18 +40,25 @@ function App() {
 
   const handleSubmit = async () => {
     const lines = teamData.split('\n').filter(line => line.trim() !== "");
+    var valid_lines = true;
+    var error_line = "";
     const teams = lines.map(line => {
       const parts = line.trim().split(/\s+/);
       if (parts.length === NUMBER_OF_FIELDS) {
         const [name, registrationDate, groupNumber] = parts;
         return { name, registrationDate, groupNumber: parseInt(groupNumber, 10) };
       } else {
-        setMessage('Invalid input format');
-        return null;
+        error_line = line;
+        valid_lines = false;
+        return;
       }
     }).filter(team => team !== null);
 
-    if (teams.length !== EXPECTED_TEAM_NUMBER) {
+    if (! valid_lines) {
+      setMessage(`Invalid input format for line: ${error_line}`);
+      return;
+    }
+    if (lines.length != EXPECTED_TEAM_NUMBER) {
       setMessage('Error: Please enter exactly 12 teams.');
       return;
     }
@@ -99,7 +112,7 @@ function App() {
             </div>
           ) : (
             <div className="list-section">
-              <h2>Teams Added Successfully</h2>
+              <h3>Teams Added Successfully. Continue to tournament </h3>
               <div className="team-list">
                 <TeamList />
               </div>

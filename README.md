@@ -38,7 +38,7 @@
 #### Core functionality 
 
 
-#### Web Security 
+#### Web Security improvements 
 - Capture user sessions (was going to try Firebase)
 - Read/Write access limitations and admin access for mongo server 
 
@@ -55,7 +55,9 @@
 
 
 #### Input sanitization 
-
+- I did not check for the following things
+    - Whether each team played against each other in the group exactly once
+    - Attempted script injections (e.g: XSS attacks / SQL injections)
 
 #### State management 
 

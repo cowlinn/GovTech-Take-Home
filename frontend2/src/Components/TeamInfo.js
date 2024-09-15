@@ -21,7 +21,7 @@ const TeamInfo = () => {
       if (error.response && error.response.status === 404) {
         setMessage(`Team "${teamName}" not found`);
       } else {
-        setMessage('Failed to fetch team data');
+        setMessage(`Failed to fetch ${teamName}.`);
       }
       setTeamData(null);
     }
