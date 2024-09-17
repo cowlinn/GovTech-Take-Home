@@ -10,6 +10,8 @@ from app.Util.score_helper import add_score, undo_score
 from app.Util.sort_teams import rank_teams
 
 router = APIRouter()
+import logging
+logger = logging.getLogger(__name__)
 
 
 EXPECTED_MATCHES_TOTAL = 30
@@ -50,6 +52,7 @@ async def find_team(team_name:str):
     
 @router.post("/teams/")
 async def add_teams(teams: List[Team]):
+    logger.info(f"Method: attempting to insert the following teams: ${teams}")
     groups = dict()
     names = set()
     for team in teams:
@@ -100,8 +103,8 @@ async def get_ranked_teams():
 
 @router.put("/teams/{team_id}")
 async def update_team(team_id: str, team: Team):
+    logger.info(f"Updating team with previous id = ${team_id}, new team = ${team}")
     try:
-        
         name_clash = team_collection.find_one(
             {"name" : team.name}
         )
@@ -156,6 +159,7 @@ async def record_matches_update(results: List[MatchResult]):
 ## In any case, this is a potential improvement
 @router.post("/matches/", response_model=List[Team])
 async def record_matches(results: List[MatchResult]):
+    logger.info(f"Attempting to insert the following match results: ${results}")
     if len(results) != EXPECTED_MATCHES_TOTAL:
         raise HTTPException(status_code=422, detail=f"Need exactly {EXPECTED_MATCHES_TOTAL} matches for input")
     try:

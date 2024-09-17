@@ -33,6 +33,13 @@
 
 - In the match results, you can only edit the goals scored. You cannot edit teams since the round robin format dictates exactly 1 match against every other team in the group 
 
+### Troubleshooting 
+- You have to open a bash terminal within the container (or use Docker desktop to view container files)
+
+- Go into the `backend1` container, and go to 
+    - `/app/app/logs/(today's YYMMDD).log`
+    - There is a logging interceptor for all endpoint requests + more detailed logging for inserts / updates
+
 ### (A lot of) Potential improvements
 
 #### Core functionality 
@@ -57,6 +64,7 @@
 #### Input sanitization 
 - I did not check for the following things
     - Whether each team played against each other in the group exactly once
+    - Date related inputs. I assume the `dd/mm` is valid. I just ran out of time to implement this check
     - Attempted script injections (e.g: XSS attacks / SQL injections)
 
 #### State management 
@@ -69,3 +77,5 @@
 - Given more time, I don't think the input should be text. I would have had drop-downs / other better styling 
 
 - Would've used CSS libraries like Tailwind 
+
+
