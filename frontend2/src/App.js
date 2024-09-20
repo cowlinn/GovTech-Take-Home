@@ -81,6 +81,7 @@ function App() {
       setIsSubmitted(false);
       localStorage.removeItem('isSubmitted');
       localStorage.removeItem('hasNavigated'); // Reset navigation state
+      localStorage.removeItem('editResults'); 
       setHasNavigated(false);
     } catch (error) {
       setMessage('Failed to clear all teams');

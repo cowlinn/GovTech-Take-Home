@@ -25,7 +25,7 @@
         - No login credentials
     
 ### Assumptions
-- For both text inputs, the input sizes are exactly 12 teams, 30 round robin matches. You can enter anything more or less
+- For both text inputs, the input sizes are exactly 12 teams, 30 round robin matches. You can't enter anything more or less
 
 - There must be exactly 6 teams from each group. 
 
@@ -46,6 +46,8 @@
 
 
 #### Web Security improvements 
+- Was going to implement simple session/refresh tokens via JWT for the endpoints, but ran out of time
+    - Either do it manually OR via firebase
 - Capture user sessions (was going to try Firebase)
 - Read/Write access limitations and admin access for mongo server 
 
